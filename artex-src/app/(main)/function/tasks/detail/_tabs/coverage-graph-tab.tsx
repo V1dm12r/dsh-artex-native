@@ -542,7 +542,7 @@ function GraphInner({ taskId, coverageEnabled = true }: { taskId: string; covera
         container: containerRef.current,
         autoResize: true,
         autoFit: "view",
-        background: "#f0f2f7",
+        background: "transparent",
         node: {
           style: {
             size: (d: unknown) => nd(d).size,

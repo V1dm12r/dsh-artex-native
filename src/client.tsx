@@ -15,11 +15,15 @@ import { createRoot, type Root } from 'react-dom/client'
 import { NAV_PAGES, DEFAULT_PATH, findPage } from './pages'
 import { subscribe, navigate, getRoute } from './shims/next-navigation'
 import { Toaster } from '@/components/ui/sonner'
+import { SidebarProvider } from '@/components/ui/sidebar'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { PREFERENCE_DEFAULTS } from '@/lib/preferences/preferences-config'
 import { setPortalRoot } from '@/lib/portal-root'
 import { PreferencesStoreProvider } from '@/stores/preferences/preferences-provider'
 import rawCss from '@/app/globals.css?inline'
+// React Flow's stylesheet must be inlined too: a plain css import lands in
+// document.head, which the shadow root cannot see.
+import xyflowCss from '@xyflow/react/dist/style.css?inline'
 
 /**
  * Tailwind v4 emits its design tokens under `:root`, which never matches inside
@@ -52,12 +56,24 @@ const GLASS_PATCH = `
   --secondary: oklch(96% 0 0 / 0.55);
   --sidebar: oklch(98% 0 0 / 0.6);
 }
+
+/* React Flow's own stylesheet ships only CSS variables for .react-flow and no
+   position, so the absolutely-positioned .react-flow__pane resolves against the
+   wrong ancestor inside a shadow root — the whole canvas lands far below the
+   panel. ARTEX works in a normal document because the page supplies the context. */
+.react-flow {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
 `
 
 const shadowCss =
   rawCss
     .replace(/:root/g, ':host')
-    .replace(/--background:\s*oklch\([^)]*\)/g, '--background: transparent') + GLASS_PATCH
+    .replace(/--background:\s*oklch\([^)]*\)/g, '--background: transparent') +
+  xyflowCss +
+  GLASS_PATCH
 
 /** Renders a readable failure inside the panel instead of propagating it. */
 class Boundary extends React.Component<
@@ -326,8 +342,9 @@ function PanelBody(): React.ReactElement {
   }
 
   // Mirrors ARTEX's app/layout.tsx. Without these providers the pages throw:
-  // Radix Tooltip requires TooltipProvider, and the preference store backs the
-  // theme/layout lookups several components read on first render.
+  // Radix Tooltip requires TooltipProvider, the preference store backs the
+  // theme/layout lookups, and several pages call `useSidebar()` (shadcn) which
+  // needs a SidebarProvider ancestor even though we render no ARTEX sidebar.
   return React.createElement(
     PreferencesStoreProvider,
     {
@@ -337,7 +354,17 @@ function PanelBody(): React.ReactElement {
       navbarStyle: PREFERENCE_DEFAULTS.navbar_style,
       font: PREFERENCE_DEFAULTS.font,
     },
-    React.createElement(TooltipProvider, { delayDuration: 200 }, content),
+    React.createElement(
+      SidebarProvider,
+      {
+        defaultOpen: true,
+        // The provider renders a div with `flex min-h-svh w-full`, which fights
+        // our column layout and collapses the panel. `display: contents` keeps
+        // the context and the --sidebar-* variables while removing the box.
+        style: { display: 'contents' },
+      },
+      React.createElement(TooltipProvider, { delayDuration: 200 }, content),
+    ),
   )
 }
 
