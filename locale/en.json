@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "ARTEX Native (spike)",
+    "description": "Renders the ARTEX frontend as native DSH React components instead of an iframe, so the wallpaper shows through. Single-page validation build."
+  },
+  "nav": "ARTEX Native"
+}

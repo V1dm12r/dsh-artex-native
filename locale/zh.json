@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "ARTEX 原生（试验）",
+    "description": "把 ARTEX 前端作为 DSH 原生 React 组件渲染，不使用 iframe，因此壁纸可以从组件背景透出。当前为单页验证版本。"
+  },
+  "nav": "ARTEX 原生"
+}

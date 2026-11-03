@@ -1,0 +1,7 @@
+- insert:
+    - id: dsh-artex-native
+      name: '@local/dsh-artex-native'
+      # Backend origin the Host half proxies /artex-api/* to. Change this instead
+      # of editing index.js when ARTEX runs on another host or port.
+      config:
+        artexUrl: 'http://127.0.0.1:8787'

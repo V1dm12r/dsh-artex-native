@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>ARTEX native preview</title>
+  <style>
+    html, body { margin: 0; height: 100%; }
+    /* Stand-in for the DSH wallpaper layer: if the panel renders transparent,
+       this gradient shows through it. */
+    body {
+      background:
+        radial-gradient(circle at 30% 20%, #2c4a6e 0%, transparent 55%),
+        radial-gradient(circle at 75% 70%, #5a2d4a 0%, transparent 60%),
+        linear-gradient(135deg, #101820 0%, #1d2b3a 100%);
+      font-family: system-ui, sans-serif;
+      color: #fff;
+    }
+    #wrap {
+      height: 100vh;
+      padding: 24px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+    #root {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+</head>
+<body>
+  <div id="wrap"><div id="root"></div></div>
+  <script>
+    window.__ModuleLoader__ = { load(mod) { /* record only */ } }
+    // The token is injected by run-preview.mjs via addInitScript, using a real
+    // login against the backend; do not seed a fake one here or it wins.
+    window.__ARTEX_TEST_MOUNT__ = document.getElementById('root')
+  </script>
+  <script src="./dist/client.js"></script>
+</body>
+</html>
